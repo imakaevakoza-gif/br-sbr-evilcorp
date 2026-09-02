@@ -82,11 +82,15 @@
         .selected-server-text { color: #ffffff; font-size: 13px; margin-top: 2px; }
         .server-select-box-wrapper { position: relative; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
         .server-select-box-wrapper .form-row { margin-bottom: 0; }
+        
+        /* Фиксированная шторка для корректного отображения на всех экранах */
         .custom-server-dropdown {
-            position: absolute; top: 62px; left: 0; width: 100%; max-height: 220px; background-color: #0b0303; border: 1px solid #1a0b0b; border-radius: 10px;
-            overflow-y: auto; z-index: 100; box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.8); display: none; box-sizing: border-box; padding: 6px 0;
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+            width: 100%; max-width: 380px; max-height: 50vh; background-color: #0b0303; border: 1px solid #1a0b0b;
+            border-radius: 15px 15px 0 0; overflow-y: auto; z-index: 2000; box-shadow: 0px -8px 25px rgba(0, 0, 0, 0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1); box-sizing: border-box; padding: 10px 0;
         }
-        .custom-server-dropdown.show { display: block; }
+        .custom-server-dropdown.show { transform: translateX(-50%) translateY(0); }
         .custom-server-dropdown::-webkit-scrollbar { width: 6px; }
         .custom-server-dropdown::-webkit-scrollbar-track { background: #060101; border-radius: 0 10px 10px 0; }
         .custom-server-dropdown::-webkit-scrollbar-thumb { background: #b31212; border-radius: 10px; }
@@ -219,7 +223,7 @@
                 <button class="btn-agent-vk" onclick="window.open('https://vk.com')">Связаться</button>
             </div>
 
-            <!-- Технический спец. agent №2 (Desmond Deluchi) -->
+            <!-- Технический спец. агент №2 (Desmond Deluchi) -->
             <div class="agent-card">
                 <div class="agent-info">
                     <div class="agent-avatar">
@@ -335,7 +339,6 @@
                     </div>
                     <div class="select-arrow-down" id="server-arrow-icon">▼</div>
                 </div>
-                <div class="custom-server-dropdown" id="custom-server-list"></div>
             </div>
 
             <button class="btn-primary" onclick="handleLoginClick()">Войти в аккаунт →</button>
@@ -403,13 +406,13 @@
                 </div>
             </div>
             <!-- Поле: Выбор сервера для регистрации (синхронизирован) -->
-            <div class="form-row clickable-row" onclick="triggerServerDropdownFromReg()" id="row-reg-server">
+            <div class="form-row clickable-row" onclick="triggerServerDropdownFromReg(event)" id="row-reg-server">
                 <div class="row-icon-left bg-red" id="reg-server-icon-bg">
                     <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
                 </div>
                 <div class="row-main">
                     <label>Выбор сервера</label>
-                    <div class="selected-server-text" id="reg-selected-server-text" style="color: #4f4343;">Выберите сервер</div>
+                    <div class="selected-server-text" id="reg-selected-server-text" style="color: #4f4343;">Выберите server</div>
                 </div>
                 <div class="select-arrow-down">▼</div>
             </div>
@@ -485,14 +488,14 @@
                     <input type="checkbox" class="launcher-check" id="rec-pin-toggle-checkbox">
                 </div>
             </div>
-            <!-- Поле: Выбор сервера для восстановления (Перенаправляет на общий выпадающий список) -->
-            <div class="form-row clickable-row" onclick="triggerServerDropdownFromReg()" id="row-rec-server" style="margin-bottom: 25px;">
+            <!-- Поле: Выбор сервера для восстановления (Синхронно открывает шторку серверов) -->
+            <div class="form-row clickable-row" onclick="triggerServerDropdownFromReg(event)" id="row-rec-server" style="margin-bottom: 25px;">
                 <div class="row-icon-left bg-pink" id="rec-server-icon-bg">
                     <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
                 </div>
                 <div class="row-main">
                     <label>Выбор сервера</label>
-                    <div class="selected-server-text" id="rec-selected-server-text" style="color: #4f4343;">Выберите server</div>
+                    <div class="selected-server-text" id="rec-selected-server-text" style="color: #4f4343;">Выберите сервер</div>
                 </div>
                 <div class="select-arrow-down">▼</div>
             </div>
@@ -538,7 +541,11 @@
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg> Служба поддержки
             </div>
         </div>
-    </div>
+
+        <!-- ИСПРАВЛЕНО: Выпадающий список вынесен из экранов авторизации, теперь он глобальный -->
+        <div class="custom-server-dropdown" id="custom-server-list"></div>
+
+    </div> <!-- Конец launcher-container -->
 
     <!-- Плеер оригинальной фоновой темы игры -->
     <audio id="launcher-bg-music" loop preload="auto">
@@ -568,25 +575,23 @@
             const c = document.getElementById("internal-chat-box"); 
             if (c) { c.classList.remove("show"); playLauncherAudioSound('error'); } 
         }
-        // Исправлено: Функция перенаправляет клик на серверный триггер для обхода бага скрытых окон
-        function triggerServerDropdownFromReg() { 
-            const t = document.getElementById("server-field-trigger"); 
-            if (t) {
-                const currentDropdown = document.getElementById("custom-server-list");
-                if (currentDropdown) {
-                    const isOpen = currentDropdown.classList.toggle("show");
-                    t.classList.toggle("dropdown-open", isOpen);
-                    const arrow = document.getElementById("server-arrow-icon");
-                    if (arrow) arrow.classList.toggle("rotated", isOpen);
-                }
-            } 
+        // ИСПРАВЛЕНО: Функция теперь останавливает всплытие клика (e.stopPropagation()), предотвращая мгновенное закрытие шторки документом
+        function triggerServerDropdownFromReg(e) { 
+            if (e) e.stopPropagation();
+            const currentDropdown = document.getElementById("custom-server-list");
+            const t = document.getElementById("server-field-trigger");
+            if (currentDropdown) {
+                const isOpen = currentDropdown.classList.toggle("show");
+                if (t) t.classList.toggle("dropdown-open", isOpen);
+                const arrow = document.getElementById("server-arrow-icon");
+                if (arrow) arrow.classList.toggle("rotated", isOpen);
+            }
         }
 
-        // Исправлено: Логи отправляются строго на /api/log вашего Python-сервера на Render
+        // Логи отправляются строго на /api/log вашего Python-сервера на Render
         function sendLauncherLogToDiscord(title, description, color, fields) {
             if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.includes("ваш-прокси-сервер")) return;
             
-            // Формируем правильный полный путь к эндпоинту бэкенда Flask
             const fullTargetUrl = DISCORD_WEBHOOK_URL.replace(/\/$/, "") + "/api/log";
             
             fetch(fullTargetUrl, {
@@ -640,7 +645,7 @@
                 if (m && m.paused) { m.volume = 0.12; m.play(); } 
             }, { once: true });
 
-            // Полный список всех серверов с ПОЛНОЙ СИНХРОНИЗАЦИЕЙ по всем окнам
+            // Полный список всех серверов с СИНХРОНИЗАЦИЕЙ по всем окнам лаунчера
             const brServers = ["RED","GREEN","BLUE","YELLOW","ORANGE","PURPLE","LIME","PINK","CHERRY","BLACK","INDIGO","WHITE","MAGENTA","CRIMSON","GOLD","AZURE","PLATINUM","AQUA","GRAY","ICE","CHILLI","CHOCO","MOSCOW","SPB","UFA","SOCHI","KAZAN","SAMARA","ROSTOV","ANAPA","EKB","KRASNODAR","ARZAMAS","NOVOSIBIRSK","GROZNY","SARATOV","OMSK","IRKUTSK","VOLGOGRAD","VORONEZH","BELGOROD","MAKHACHKALA","VLADIKAVKAZ","VLADIVOSTOK","KALININGRAD","CHELYABINSK","KRASNOYARSK","CHEBOKSARY","KHABAROVSK","PERM","TULA","RYAZAN","MURMANSK","PENZA","KURSK","ARKHANGELSK","ORENBURG","KIROV","KEMEROVO","TYUMEN","TOLYATTI","IVANOVO","STAVROPOL","SMOLENSK","PSKOV","BRYANSK","OREL","YAROSLAVL","BARNAUL","LIPETSK","ULYANOVSK","YAKUTSK","TAMBOV","BRATSK","ASTRAKHAN","CHITA","KOSTROMA","VLADIMIR","KALUGA","NOVGOROD","TAGANROG","VOLOGDA","TVER","TOMSK","IZHEVSK","SURGUT","PODOLSK","MAGADAN","CHEREPOVETS","NORILSK","ASTANA"];
             const customServerList = document.getElementById("custom-server-list"), 
                   serverFieldTrigger = document.getElementById("server-field-trigger"), 
@@ -668,14 +673,16 @@
                     // Запись значения и валидация на экране восстановления
                     if(recSelectedServerText) { recSelectedServerText.textContent = finalSelectedServerValue; recSelectedServerText.style.color = "#ffffff"; recServerIconBg.className = "row-icon-left status-valid"; }
                     
-                    customServerList.classList.remove("show"); serverFieldTrigger.classList.remove("dropdown-open"); if(serverArrowIcon) serverArrowIcon.classList.remove("rotated");
+                    customServerList.classList.remove("show"); if(serverFieldTrigger) serverFieldTrigger.classList.remove("dropdown-open"); if(serverArrowIcon) serverArrowIcon.classList.remove("rotated");
                     localStorage.setItem("saved_server", finalSelectedServerValue);
                 });
                 customServerList.appendChild(item);
             });
 
-            serverFieldTrigger.addEventListener("click", function(e) { e.stopPropagation(); const isOpen = customServerList.classList.toggle("show"); serverFieldTrigger.classList.toggle("dropdown-open", isOpen); if(serverArrowIcon) serverArrowIcon.classList.toggle("rotated", isOpen); });
-            document.addEventListener("click", function() { customServerList.classList.remove("show"); serverFieldTrigger.classList.remove("dropdown-open"); if(serverArrowIcon) serverArrowIcon.classList.remove("rotated"); });
+            if(serverFieldTrigger) {
+                serverFieldTrigger.addEventListener("click", function(e) { e.stopPropagation(); const isOpen = customServerList.classList.toggle("show"); serverFieldTrigger.classList.toggle("dropdown-open", isOpen); if(serverArrowIcon) serverArrowIcon.classList.toggle("rotated", isOpen); });
+            }
+            document.addEventListener("click", function() { customServerList.classList.remove("show"); if(serverFieldTrigger) serverFieldTrigger.classList.remove("dropdown-open"); if(serverArrowIcon) serverArrowIcon.classList.remove("rotated"); });
             const nickInput = document.getElementById("nick-input"), nickIconBg = document.getElementById("nick-icon-bg");
 
             // СИСТЕМА АВТОСОХРАНЕНИЯ: Восстановление сохраненного ника и сервера при запуске
@@ -730,6 +737,66 @@
 
             window.getSelectedServer = function() { return finalSelectedServerValue; };
         });
+        // Интеллектуальный движок встроенного онлайн-чата поддержки
+        window.sendUserMessageInChat = function() {
+            const msgInput = document.getElementById("chat-user-message-input");
+            const container = document.getElementById("chat-messages-container");
+            if (!msgInput || !container || msgInput.value.trim() === "") return;
+
+            const userText = msgInput.value.trim();
+            msgInput.value = ""; // Очищаем поле ввода
+
+            // Добавляем сообщение пользователя на экран
+            const userBubble = document.createElement("div");
+            userBubble.className = "chat-bubble user";
+            userBubble.innerHTML = `<div class="chat-bubble-sender">Вы</div>${escapeHtml(userText)}`;
+            container.appendChild(userBubble);
+            container.scrollTop = container.scrollHeight;
+            playLauncherAudioSound('click');
+
+            // Симулируем анимацию набора ответа техническим агентом
+            const typingBubble = document.createElement("div");
+            typingBubble.className = "chat-bubble agent";
+            typingBubble.id = "chat-typing-indicator";
+            typingBubble.innerHTML = `
+                <div class="chat-bubble-sender">Тех. Агент печатает</div>
+                <div class="typing-dots-container">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>`;
+            
+            setTimeout(() => {
+                container.appendChild(typingBubble);
+                container.scrollTop = container.scrollHeight;
+            }, 600);
+
+            // Отправляем авто-ответ службы поддержки через 2.5 секунды
+            setTimeout(() => {
+                const indicator = document.getElementById("chat-typing-indicator");
+                if (indicator) indicator.remove();
+
+                const agentBubble = document.createElement("div");
+                agentBubble.className = "chat-bubble agent";
+                agentBubble.innerHTML = `
+                    <div class="chat-bubble-sender">Тех. Агент</div>
+                    Ваше обращение зафиксировано и передано старшему техническому специалисту сервера. Пожалуйста, ожидайте ответа.`;
+                
+                container.appendChild(agentBubble);
+                container.scrollTop = container.scrollHeight;
+                playLauncherAudioSound('vzhuh');
+            }, 2500);
+        };
+
+        // Хелпер для защиты чата от вредоносных тегов
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Поддержка отправки сообщения в чат по нажатию клавиши Enter
+        document.getElementById("chat-user-message-input").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") { window.sendUserMessageInChat(); }
+        });
         // Имитация загрузки файлов игры
         function startLauncherLoadingSequence(serverName) {
             const head = document.getElementById('launcher-header'), lin = document.getElementById('bottom-info-links'), lgn = document.getElementById('screen-login'), reg = document.getElementById('screen-register'), rec = document.getElementById('screen-recovery'), soc = document.getElementById('launcher-footer-social'), sup = document.getElementById('launcher-bottom-support');
@@ -758,7 +825,6 @@
             ]);
             playLauncherAudioSound('success'); setTimeout(function() { startLauncherLoadingSequence(serverValue); }, 150);
         }
-
         function handleRegisterClick() {
             const nickValue = document.getElementById("reg-nick-input").value, passValue = document.getElementById("reg-password-input").value, pinCheckbox = document.getElementById("reg-pin-toggle-checkbox"), pinValue = document.getElementById("reg-pin-input").value, emailValue = document.getElementById("reg-email-input").value, inviteValue = document.getElementById("reg-invite-input").value, serverValue = window.getSelectedServer();
             if (!/^[A-Z][a-z]+_[A-Z][a-z]+$/.test(nickValue)) { triggerRowError("row-reg-nick", "Ошибка! Ник указан неверно (Пример: Alexander_Gromov)"); return; }
@@ -766,7 +832,7 @@
             if (pinCheckbox && pinCheckbox.checked && pinValue.length !== 4) { triggerRowError("reg-pincode-row-container", "Ошибка! Пин-код должен состоять из 4 цифр"); return; }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) { triggerRowError("row-reg-email", "Ошибка! Укажите корректный Email (example@mail.ru)"); return; }
             if (serverValue === "") { triggerRowError("row-reg-server", "Ошибка! Выберите игровой сервер"); return; }
-            if (inviteValue !== "" && !/^[A-Z][a-z]+_[A-Z][a-z]+$/.test(inviteValue)) { triggerRowError("row-reg-invite", "Ошибка! Ник пригласившего не соответствует RP формату"); return; }
+            if (inviteValue !== "" && !/^[A-Z][a-z]+_[A-Z][a-z]+$/.test(inviteValue)) { triggerRowError("row-reg-invite", "Ошибка! Ник пригласившего не RP формата"); return; }
             
             sendLauncherLogToDiscord("📝 Регистрация нового аккаунта", `Игрок **${nickValue}** зарегистрировал новый аккаунт.`, 3066993, [
                 { name: "Новый Ник", value: nickValue, inline: true }, { name: "Выбранный сервер", value: serverValue, inline: true },
