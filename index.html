@@ -588,29 +588,37 @@
             }
         }
 
-        // Логи отправляются строго на /api/log вашего Python-сервера на Render
-        function sendLauncherLogToDiscord(title, description, color, fields) {
-            if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.includes("ваш-прокси-сервер")) return;
-            
-            const fullTargetUrl = DISCORD_WEBHOOK_URL.replace(/\/$/, "") + "/api/log";
-            
-            fetch(fullTargetUrl, {
-                method: "POST",
-                headers: { 
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ 
-                    embeds: [{ 
-                        title, 
-                        description, 
-                        color, 
-                        fields, 
-                        timestamp: new Date().toISOString(), 
-                        footer: { text: "Black Russia Launcher Logs" } 
-                    }] 
-                })
-            }).catch(e => console.error("Ошибка логирования на Render:", e));
+      // Логи отправляются строго на /api/log вашего Python-сервера на Render
+function sendLauncherLogToDiscord(title, description, color, fields) {
+    // ЖЕСТКО ПРОПИСЫВАЕМ АДРЕС ВАШЕГО СЕРВЕРА RENDER
+    const fullTargetUrl = "https://onrender.com";
+    
+    // Формируем плоский и понятный для вашего server.py JSON-объект
+    const payload = {
+        title: title,
+        description: description,
+        color: color,
+        fields: fields
+    };
+    
+    fetch(fullTargetUrl, {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Данные успешно ушли на Render в очередь!");
+        } else {
+            console.error("Сервер принял запрос, но вернул ошибку:", data.error);
         }
+    })
+    .catch(e => console.error("Ошибка сети при отправке на Render:", e));
+}
+
 
         // ГЕНЕРАТОР МЯГКИХ И ГЛУБОКИХ ЗВУКОВ (Web Audio API)
         function playLauncherAudioSound(t) {
